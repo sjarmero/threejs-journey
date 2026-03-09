@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
 
-const width = 800;
-const height = 600;
+let width = window.innerWidth;
+let height = window.innerHeight;
 
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 const material = new THREE.MeshBasicMaterial({color: 0xff0000});
@@ -20,46 +20,41 @@ camera.lookAt(mesh.position);
 scene.add(camera);
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-let canvasOffset: {x: number, y:number};
 let renderer: WebGLRenderer;
 
 onMounted(()=> {
   if (canvas.value) {
-    canvasOffset = {
-      x: canvas.value.offsetLeft,
-      y: canvas.value.offsetTop
-    };
-
     renderer = new THREE.WebGLRenderer({
       canvas: canvas.value,
     });
 
     renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.render(scene, camera);
 
     tick();
 
-    canvas.value.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('resize', ()=> {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+      renderer.render(scene, camera);
+    });
+
+    canvas.value.addEventListener('dblclick', ()=> {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        canvas.value?.requestFullscreen();
+      }
+    });
   }
 });
 
-const cursor = {x: 0, y: 0};
-const RANGE_OFFSET = -0.5;
-function onMouseMove(event: MouseEvent) {
-  cursor.x = ((event.clientX - canvasOffset.x) / width) + RANGE_OFFSET;
-  cursor.y = ((event.clientY - canvasOffset.y) / height) + RANGE_OFFSET;
-
-  console.log(cursor);
-}
-
-const clock = new THREE.Clock();
-const fullRev = 2 * Math.PI;
 function tick() {
-  // mesh.rotation.y = clock.getElapsedTime();
-  camera.position.x = Math.sin(cursor.x * fullRev) * 3;
-  camera.position.z = Math.cos(cursor.x * fullRev) * 3;
-  camera.position.y = cursor.y * 5;
-  camera.lookAt(mesh.position);
   renderer.render(scene, camera);
 
   requestAnimationFrame(tick);
@@ -73,3 +68,8 @@ function tick() {
     />
   </div> 
 </template>
+<style lang="scss" scoped>
+.webgl {
+  outline: none;
+}
+</style>
