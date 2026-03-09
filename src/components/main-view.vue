@@ -2,12 +2,27 @@
 import * as THREE from 'three';
 import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
+// @ts-expect-error Hacky import
+import {OrbitControls} from 'three/addons/controls/OrbitControls';
 
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({color: 0xff0000});
+const TRIANGLES_COUNT = 150;
+const positionsArray = new Float32Array(
+  [...new Array(3 * 3 * TRIANGLES_COUNT)]
+    .map(()=> Math.random() - 0.5)
+);
+
+const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3);
+
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', positionsAttribute);
+
+const material = new THREE.MeshBasicMaterial({
+  color: 0xff0000,
+  wireframe: true,
+});
 const mesh = new THREE.Mesh(geometry, material);
 
 const scene = new THREE.Scene();
@@ -27,6 +42,8 @@ onMounted(()=> {
     renderer = new THREE.WebGLRenderer({
       canvas: canvas.value,
     });
+
+    new OrbitControls(camera, canvas.value);
 
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
