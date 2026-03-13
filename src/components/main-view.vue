@@ -2,31 +2,52 @@
 import * as THREE from 'three';
 import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
+import type {Color} from 'three';
 // @ts-expect-error Hacky import
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
+import GUI from 'lil-gui';
+import gsap from 'gsap';
 
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-const TRIANGLES_COUNT = 150;
-const positionsArray = new Float32Array(
-  [...new Array(3 * 3 * TRIANGLES_COUNT)]
-    .map(()=> Math.random() - 0.5)
-);
+const gui = new GUI();
+const cubeTweaks = gui.addFolder('cube');
 
-const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3);
+const tweaks = {
+  spinObject() {
+    gsap.to(mesh.rotation, {duration: 1, y: mesh.rotation.y + 2 * Math.PI});
+    gsap.to(sphereMesh.rotation, {duration: 1, y: sphereMesh.rotation.y + 2* Math.PI});
+  },
+  subdivision: 2,
+};
 
-const geometry = new THREE.BufferGeometry();
-geometry.setAttribute('position', positionsAttribute);
 
-const material = new THREE.MeshBasicMaterial({
+const materialParameters = {
   color: 0xff0000,
   wireframe: true,
-});
-const mesh = new THREE.Mesh(geometry, material);
+};
+const material = new THREE.MeshBasicMaterial(materialParameters);
+
+const getGeometry = ()=> new THREE.BoxGeometry(1, 1, 1, tweaks.subdivision, tweaks.subdivision, tweaks.subdivision);
+
+const mesh = new THREE.Mesh(getGeometry(), material);
+mesh.position.x = -1;
 
 const scene = new THREE.Scene();
 scene.add(mesh);
+
+cubeTweaks.add(mesh.position, 'y').min(-3).max(3).step(0.01).name('elevation');
+cubeTweaks.add(mesh, 'visible');
+cubeTweaks.add(mesh.material, 'wireframe');
+cubeTweaks.addColor(materialParameters, 'color').onChange((color: Color)=> {
+  material.color.set(color);
+});
+
+const getSphereGeometry = ()=> new THREE.SphereGeometry(1, tweaks.subdivision, tweaks.subdivision);
+const sphereMesh = new THREE.Mesh(getSphereGeometry(), material);
+sphereMesh.position.x = 1;
+scene.add(sphereMesh);
 
 const aspectRatio = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspectRatio);
@@ -36,6 +57,15 @@ scene.add(camera);
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let renderer: WebGLRenderer;
+
+cubeTweaks.add(tweaks, 'spinObject');
+cubeTweaks.add(tweaks, 'subdivision').min(1).max(20).step(1).onChange(()=> {
+  mesh.geometry.dispose();
+  mesh.geometry = getGeometry();
+
+  sphereMesh.geometry.dispose();
+  sphereMesh.geometry = getSphereGeometry();
+});
 
 onMounted(()=> {
   if (canvas.value) {
