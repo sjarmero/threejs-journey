@@ -2,26 +2,17 @@
 import * as THREE from 'three';
 import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
-import type {Color} from 'three';
 // @ts-expect-error Hacky import
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
-import gsap from 'gsap';
 
 let width = window.innerWidth;
 let height = window.innerHeight;
-
-const tweaks = {
-  spinObject() {
-    gsap.to(mesh.rotation, {duration: 1, y: mesh.rotation.y + 2 * Math.PI});
-  },
-  subdivision: 2,
-};
 
 const material = new THREE.MeshBasicMaterial({
   color: 0x000f00,
 });
 
-const getGeometry = ()=> new THREE.BoxGeometry(1, 1, 1, tweaks.subdivision, tweaks.subdivision, tweaks.subdivision);
+const getGeometry = ()=> new THREE.BoxGeometry(1, 1, 1);
 
 const mesh = new THREE.Mesh(getGeometry(), material);
 
