@@ -14,17 +14,9 @@ const textureLoader = new THREE.TextureLoader(loadingManager);
 
 const colorTexture = textureLoader.load(doorColor);
 colorTexture.colorSpace = THREE.SRGBColorSpace;
-colorTexture.repeat.x = 1;
-colorTexture.repeat.y = 1;
-colorTexture.wrapS = THREE.RepeatWrapping;
-colorTexture.wrapT = THREE.RepeatWrapping;
-colorTexture.offset.x = 0.5;
-colorTexture.offset.y = 0.5;
-colorTexture.rotation = Math.PI / 4;
-colorTexture.center.x = 0.5;
-colorTexture.center.y = 0.5;
 colorTexture.minFilter = THREE.NearestFilter;
 colorTexture.magFilter = THREE.NearestFilter;
+colorTexture.generateMipmaps = false;
 
 const material = new THREE.MeshBasicMaterial({
   map: colorTexture,
