@@ -4,34 +4,17 @@ import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
 // @ts-expect-error Hacky import
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
-import doorColor from '~/assets/textures/minecraft.png';
 
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-const loadingManager = new THREE.LoadingManager();
-const textureLoader = new THREE.TextureLoader(loadingManager);
 
-const colorTexture = textureLoader.load(doorColor);
-colorTexture.colorSpace = THREE.SRGBColorSpace;
-colorTexture.minFilter = THREE.NearestFilter;
-colorTexture.magFilter = THREE.NearestFilter;
-colorTexture.generateMipmaps = false;
-
-const material = new THREE.MeshBasicMaterial({
-  map: colorTexture,
-});
-
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const mesh = new THREE.Mesh(geometry, material);
 
 const scene = new THREE.Scene();
-scene.add(mesh);
 
 const aspectRatio = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspectRatio);
 camera.position.z = 3;
-camera.lookAt(mesh.position);
 scene.add(camera);
 
 const canvas = ref<HTMLCanvasElement | null>(null);
