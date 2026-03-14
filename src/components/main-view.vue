@@ -4,17 +4,21 @@ import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
 // @ts-expect-error Hacky import
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
+import doorColor from '~/assets/textures/door/color.jpg';
 
 let width = window.innerWidth;
 let height = window.innerHeight;
 
+const loadingManager = new THREE.LoadingManager();
+const textureLoader = new THREE.TextureLoader(loadingManager);
+const texture = textureLoader.load(doorColor);
+texture.colorSpace = THREE.SRGBColorSpace;
+
 const material = new THREE.MeshBasicMaterial({
-  color: 0x000f00,
+  map: texture,
 });
 
-const getGeometry = ()=> new THREE.BoxGeometry(1, 1, 1);
-
-const mesh = new THREE.Mesh(getGeometry(), material);
+const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
 
 const scene = new THREE.Scene();
 scene.add(mesh);
