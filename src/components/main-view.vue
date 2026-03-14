@@ -4,7 +4,7 @@ import {onMounted, ref} from 'vue';
 import {WebGLRenderer} from 'three';
 // @ts-expect-error Hacky import
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
-import doorColor from '~/assets/textures/door/color.jpg';
+import doorColor from '~/assets/textures/minecraft.png';
 
 let width = window.innerWidth;
 let height = window.innerHeight;
@@ -23,6 +23,8 @@ colorTexture.offset.y = 0.5;
 colorTexture.rotation = Math.PI / 4;
 colorTexture.center.x = 0.5;
 colorTexture.center.y = 0.5;
+colorTexture.minFilter = THREE.NearestFilter;
+colorTexture.magFilter = THREE.NearestFilter;
 
 const material = new THREE.MeshBasicMaterial({
   map: colorTexture,
