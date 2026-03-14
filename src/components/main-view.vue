@@ -11,11 +11,21 @@ let height = window.innerHeight;
 
 const loadingManager = new THREE.LoadingManager();
 const textureLoader = new THREE.TextureLoader(loadingManager);
-const texture = textureLoader.load(doorColor);
-texture.colorSpace = THREE.SRGBColorSpace;
+
+const colorTexture = textureLoader.load(doorColor);
+colorTexture.colorSpace = THREE.SRGBColorSpace;
+colorTexture.repeat.x = 1;
+colorTexture.repeat.y = 1;
+colorTexture.wrapS = THREE.RepeatWrapping;
+colorTexture.wrapT = THREE.RepeatWrapping;
+colorTexture.offset.x = 0.5;
+colorTexture.offset.y = 0.5;
+colorTexture.rotation = Math.PI / 4;
+colorTexture.center.x = 0.5;
+colorTexture.center.y = 0.5;
 
 const material = new THREE.MeshBasicMaterial({
-  map: texture,
+  map: colorTexture,
 });
 
 const geometry = new THREE.BoxGeometry(1, 1, 1);
