@@ -17,11 +17,9 @@ const cubeTweaks = gui.addFolder('cube');
 const tweaks = {
   spinObject() {
     gsap.to(mesh.rotation, {duration: 1, y: mesh.rotation.y + 2 * Math.PI});
-    gsap.to(sphereMesh.rotation, {duration: 1, y: sphereMesh.rotation.y + 2* Math.PI});
   },
   subdivision: 2,
 };
-
 
 const materialParameters = {
   color: 0xff0000,
@@ -32,7 +30,6 @@ const material = new THREE.MeshBasicMaterial(materialParameters);
 const getGeometry = ()=> new THREE.BoxGeometry(1, 1, 1, tweaks.subdivision, tweaks.subdivision, tweaks.subdivision);
 
 const mesh = new THREE.Mesh(getGeometry(), material);
-mesh.position.x = -1;
 
 const scene = new THREE.Scene();
 scene.add(mesh);
@@ -43,11 +40,6 @@ cubeTweaks.add(mesh.material, 'wireframe');
 cubeTweaks.addColor(materialParameters, 'color').onChange((color: Color)=> {
   material.color.set(color);
 });
-
-const getSphereGeometry = ()=> new THREE.SphereGeometry(1, tweaks.subdivision, tweaks.subdivision);
-const sphereMesh = new THREE.Mesh(getSphereGeometry(), material);
-sphereMesh.position.x = 1;
-scene.add(sphereMesh);
 
 const aspectRatio = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspectRatio);
@@ -62,9 +54,6 @@ cubeTweaks.add(tweaks, 'spinObject');
 cubeTweaks.add(tweaks, 'subdivision').min(1).max(20).step(1).onChange(()=> {
   mesh.geometry.dispose();
   mesh.geometry = getGeometry();
-
-  sphereMesh.geometry.dispose();
-  sphereMesh.geometry = getSphereGeometry();
 });
 
 onMounted(()=> {
