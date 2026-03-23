@@ -2,5 +2,7 @@
 import MainView from './components/main-view.vue';
 </script>
 <template>
-  <main-view />
+  <Suspense>
+    <main-view />
+  </Suspense>
 </template>
