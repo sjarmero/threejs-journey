@@ -11,12 +11,61 @@ let width = window.innerWidth;
 let height = window.innerHeight;
 
 const scene = new THREE.Scene();
+
+const material = new THREE.MeshStandardMaterial();
+material.roughness = 0.4;
+
+const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), material);
+const cube = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), material);
+const donut = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.2, 32, 64), material);
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(4, 2), material);
+
+sphere.position.set(-1.5, 1, 0);
+cube.position.set(0, 1, 0);
+donut.position.set(1.5, 1, 0);
+plane.position.set(0, 0, 0);
+plane.rotation.x = Math.PI / -2;
+
+scene.add(sphere, cube, donut, plane);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0x00fffc, 0.9);
+directionalLight.position.set(3, 1, 0);
+scene.add(directionalLight);
+
+const hemisphereLight = new THREE.HemisphereLight(0xff000, 0x0000ff, 0.9);
+scene.add(hemisphereLight);
+
+const pointLight = new THREE.PointLight(0xff9000, 1.5, 10, 2);
+pointLight.position.set(0, 0.5, 0);
+scene.add(pointLight);
+
+const rectAreaLight = new THREE.RectAreaLight(0x4e00ff, 6, 1, 1);
+rectAreaLight.position.set(-1, 0, 1);
+rectAreaLight.lookAt(new THREE.Vector3());
+scene.add(rectAreaLight);
+
+const spotLight = new THREE.SpotLight(0x78ff00, 4.5, 10, Math.PI * 0.1, 0.25, 1);
+spotLight.position.set(0, 0, 3);
+spotLight.target.position.set(-2, 2, 0);
+scene.add(spotLight);
+scene.add(spotLight.target);
+
+gui.add(ambientLight, 'intensity').min(0).max(3).step(0.1).name('ambientLight');
+gui.add(directionalLight, 'intensity').min(0).max(3).step(0.1).name('directionalLight');
+gui.add(hemisphereLight, 'intensity').min(0).max(3).step(0.1).name('hemishpereLight');
+gui.add(pointLight, 'intensity').min(0).max(3).step(0.1).name('pointLight');
+gui.add(rectAreaLight, 'intensity').min(0).max(10).step(1).name('rectAreaLight');
+gui.add(spotLight, 'intensity').min(0).max(10).step(1).name('spotLight');
+
 const aspectRatio = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspectRatio);
 camera.position.z = 3;
+camera.position.y = 1;
+camera.lookAt(plane.position);
 scene.add(camera);
-
-scene.add(new AxesHelper());
 
 console.time('donuts');
 
@@ -57,7 +106,19 @@ onMounted(()=> {
   }
 });
 
+const timer = new THREE.Timer();
 function tick() {
+  timer.update();
+
+  donut.rotation.x = timer.getElapsed() % (2 * Math.PI);
+  donut.rotation.y = timer.getElapsed() % (2 * Math.PI);
+
+  sphere.rotation.x = timer.getElapsed() % (2 * Math.PI);
+  sphere.rotation.y = timer.getElapsed() % (2 * Math.PI);
+
+  cube.rotation.x = timer.getElapsed() % (2 * Math.PI);
+  cube.rotation.y = timer.getElapsed() % (2 * Math.PI);
+
   renderer.render(scene, camera);
 
   requestAnimationFrame(tick);
