@@ -5,6 +5,7 @@ import {CameraHelper, PointLightHelper, WebGLRenderer} from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
 import GUI from 'lil-gui';
 import bakedShadow from '~/assets/textures/bakedShadow.jpg';
+import simpleShadow from '~/assets/textures/simpleShadow.jpg';
 
 const gui = new GUI();
 
@@ -20,22 +21,27 @@ gui.add(material, 'roughness').min(0).max(1).step(0.1);
 gui.add(material, 'metalness').min(0).max(1).step(0.1);
 
 const textureLoader = new THREE.TextureLoader();
-const bakedShadowTexture = await textureLoader.loadAsync(bakedShadow);
-bakedShadowTexture.colorSpace = THREE.SRGBColorSpace;
+const simpleShadowTexture = await textureLoader.loadAsync(simpleShadow);
+simpleShadowTexture.colorSpace = THREE.SRGBColorSpace;
 
 const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), material);
-const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), new THREE.MeshBasicMaterial({
-  map: bakedShadowTexture,
-}));
-
 sphere.position.set(0, 0, 0);
+sphere.castShadow = true;
+
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+plane.receiveShadow = true;
 plane.position.set(0, -1, 0);
 plane.rotation.x = Math.PI / -2;
 
-sphere.castShadow = true;
-plane.receiveShadow = true;
+const sphereShadow = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.MeshBasicMaterial({
+  color: 0x000000,
+  transparent: true,
+  alphaMap: simpleShadowTexture,
+}));
+sphereShadow.rotation.x = Math.PI / -2;
+sphereShadow.position.y = plane.position.y + 0.1;
 
-scene.add(sphere, plane);
+scene.add(sphere, sphereShadow, plane);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
@@ -145,6 +151,18 @@ function tick() {
 
   sphere.rotation.x = timer.getElapsed() % (2 * Math.PI);
   sphere.rotation.y = timer.getElapsed() % (2 * Math.PI);
+
+  sphere.position.x = Math.cos(timer.getElapsed()) * 1.5;
+  sphere.position.z = Math.sin(timer.getElapsed()) * 1.5;
+  sphere.position.y = Math.abs(Math.sin(timer.getElapsed() * 3));
+
+  sphereShadow.position.x = sphere.position.x;
+  sphereShadow.position.z = sphere.position.z;
+  sphereShadow.material.opacity = (1 - sphere.position.y) * 0.7;
+
+  // just playing:
+  const scale = 1 - sphere.position.y - 0.5;
+  sphereShadow.scale.set(scale, scale, scale);
 
   renderer.render(scene, camera);
 
