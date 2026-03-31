@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import * as THREE from 'three';
 import {onMounted, ref} from 'vue';
-import {AxesHelper, WebGLRenderer} from 'three';
+import {WebGLRenderer} from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
 import GUI from 'lil-gui';
+import {RectAreaLightHelper} from 'three/addons/helpers/RectAreaLightHelper.js';
 
 const gui = new GUI();
 
@@ -35,23 +36,38 @@ const directionalLight = new THREE.DirectionalLight(0x00fffc, 0.9);
 directionalLight.position.set(3, 1, 0);
 scene.add(directionalLight);
 
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 0.5);
+scene.add(directionalLightHelper);
+
 const hemisphereLight = new THREE.HemisphereLight(0xff000, 0x0000ff, 0.9);
 scene.add(hemisphereLight);
+
+const hemisphereLightHelper = new THREE.HemisphereLightHelper(hemisphereLight, 0.5);
+scene.add(hemisphereLightHelper);
 
 const pointLight = new THREE.PointLight(0xff9000, 1.5, 10, 2);
 pointLight.position.set(0, 0.5, 0);
 scene.add(pointLight);
+
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.2);
+scene.add(pointLightHelper);
 
 const rectAreaLight = new THREE.RectAreaLight(0x4e00ff, 6, 1, 1);
 rectAreaLight.position.set(-1, 0, 1);
 rectAreaLight.lookAt(new THREE.Vector3());
 scene.add(rectAreaLight);
 
+const rectAreaLightHelper = new RectAreaLightHelper(rectAreaLight);
+scene.add(rectAreaLightHelper);
+
 const spotLight = new THREE.SpotLight(0x78ff00, 4.5, 10, Math.PI * 0.1, 0.25, 1);
 spotLight.position.set(0, 0, 3);
 spotLight.target.position.set(-2, 2, 0);
 scene.add(spotLight);
 scene.add(spotLight.target);
+
+const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+scene.add(spotLightHelper);
 
 gui.add(ambientLight, 'intensity').min(0).max(3).step(0.1).name('ambientLight');
 gui.add(directionalLight, 'intensity').min(0).max(3).step(0.1).name('directionalLight');
