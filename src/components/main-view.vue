@@ -4,6 +4,7 @@ import {onMounted, ref} from 'vue';
 import {CameraHelper, PointLightHelper, WebGLRenderer} from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
 import GUI from 'lil-gui';
+import bakedShadow from '~/assets/textures/bakedShadow.jpg';
 
 const gui = new GUI();
 
@@ -18,8 +19,14 @@ material.metalness = 0;
 gui.add(material, 'roughness').min(0).max(1).step(0.1);
 gui.add(material, 'metalness').min(0).max(1).step(0.1);
 
+const textureLoader = new THREE.TextureLoader();
+const bakedShadowTexture = await textureLoader.loadAsync(bakedShadow);
+bakedShadowTexture.colorSpace = THREE.SRGBColorSpace;
+
 const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), material);
-const plane = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), material);
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), new THREE.MeshBasicMaterial({
+  map: bakedShadowTexture,
+}));
 
 sphere.position.set(0, 0, 0);
 plane.position.set(0, -1, 0);
@@ -84,7 +91,7 @@ pointLight.shadow.camera.far = 5;
 gui.add(pointLight, 'intensity').min(0).max(3).step(0.1).name('pointLight');
 
 scene.add(pointLight);
-scene.add(new CameraHelper(pointLight.shadow.camera));
+// scene.add(new CameraHelper(pointLight.shadow.camera));
 
 const aspectRatio = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspectRatio);
@@ -102,7 +109,7 @@ onMounted(()=> {
       canvas: canvas.value,
     });
 
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
 
     new OrbitControls(camera, canvas.value);
 
