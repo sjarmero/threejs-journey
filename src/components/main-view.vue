@@ -14,6 +14,9 @@ const scene = new THREE.Scene();
 
 const material = new THREE.MeshStandardMaterial();
 material.roughness = 0.4;
+material.metalness = 0;
+gui.add(material, 'roughness').min(0).max(1).step(0.1);
+gui.add(material, 'metalness').min(0).max(1).step(0.1);
 
 const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), material);
 const plane = new THREE.Mesh(new THREE.PlaneGeometry(6, 6), material);
@@ -22,11 +25,39 @@ sphere.position.set(0, 0, 0);
 plane.position.set(0, -1, 0);
 plane.rotation.x = Math.PI / -2;
 
+sphere.castShadow = true;
+plane.receiveShadow = true;
+
 scene.add(sphere, plane);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 scene.add(ambientLight);
 gui.add(ambientLight, 'intensity').min(0).max(10).step(1).name('ambientLight');
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(2, 2, -1);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.set(512, 512);
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 5.5;
+directionalLight.shadow.camera.left = -1;
+directionalLight.shadow.camera.right = 1;
+directionalLight.shadow.camera.top = 1;
+directionalLight.shadow.camera.bottom = -1;
+directionalLight.shadow.radius = 10;
+directionalLight.shadow.type = THREE.PCFSoftShadowMap;
+
+scene.add(directionalLight);
+
+const directionalLightCameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+directionalLightCameraHelper.visible = false;
+scene.add(directionalLightCameraHelper);
+
+gui.add(directionalLight, 'intensity').min(0).max(10).step(0.1).name('directionalLight');
+gui.add(directionalLight.position, 'x').min(-5).max(5).step(0.001);
+gui.add(directionalLight.position, 'y').min(-5).max(5).step(0.001);
+gui.add(directionalLight.position, 'z').min(-5).max(5).step(0.001);
+gui.add(directionalLight.shadow, 'radius').min(0).max(30).step(1);
 
 const aspectRatio = width / height;
 const camera = new THREE.PerspectiveCamera(75, aspectRatio);
@@ -43,6 +74,8 @@ onMounted(()=> {
     renderer = new THREE.WebGLRenderer({
       canvas: canvas.value,
     });
+
+    renderer.shadowMap.enabled = true;
 
     new OrbitControls(camera, canvas.value);
 
