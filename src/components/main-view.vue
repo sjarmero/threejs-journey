@@ -22,6 +22,18 @@ import bushColorTexturePath from '~/assets/bush/leaves_forest_ground_1k/leaves_f
 import bushARMTexturePath from '~/assets/bush/leaves_forest_ground_1k/leaves_forest_ground_arm_1k.jpg';
 import bushNormalTexturePath from '~/assets/bush/leaves_forest_ground_1k/leaves_forest_ground_nor_gl_1k.jpg';
 
+import graveColorTexturePath from '~/assets/grave/plastered_stone_wall_1k/plastered_stone_wall_diff_1k.jpg';
+import graveARMTexturePath from '~/assets/grave/plastered_stone_wall_1k/plastered_stone_wall_arm_1k.jpg';
+import graveNormalTexturePath from '~/assets/grave/plastered_stone_wall_1k/plastered_stone_wall_nor_gl_1k.jpg';
+
+import doorColorTexturePath from '~/assets/door/color.jpg';
+import doorAmbientOcclusionTexturePath from '~/assets/door/ambientOcclusion.jpg';
+import doorRoughnessTexturePath from '~/assets/door/roughness.jpg';
+import doorMetalnessTexturePath from '~/assets/door/metalness.jpg';
+import doorNormalTexturePath from '~/assets/door/normal.jpg';
+import doorAlphaTexturePath from '~/assets/door/alpha.jpg';
+import doorDisplacementTexturePath from '~/assets/door/height.jpg';
+
 const gui = new GUI();
 
 let width = window.innerWidth;
@@ -78,6 +90,22 @@ const bushColorTexture = await textureLoader.loadAsync(bushColorTexturePath);
 bushColorTexture.colorSpace = THREE.SRGBColorSpace;
 const bushARMTexture = await textureLoader.loadAsync(bushARMTexturePath);
 const bushNormalTexture = await textureLoader.loadAsync(bushNormalTexturePath);
+
+// Graves
+const graveColorTexture = await textureLoader.loadAsync(graveColorTexturePath);
+graveColorTexture.colorSpace = THREE.SRGBColorSpace;
+const graveARMTexture = await textureLoader.loadAsync(graveARMTexturePath);
+const graveNormalTexture = await textureLoader.loadAsync(graveNormalTexturePath);
+
+// Door
+const doorColorTexture = await textureLoader.loadAsync(doorColorTexturePath);
+doorColorTexture.colorSpace = THREE.SRGBColorSpace;
+const doorAmbientOcclusion = await textureLoader.loadAsync(doorAmbientOcclusionTexturePath);
+const doorRoughnessTexture = await textureLoader.loadAsync(doorRoughnessTexturePath);
+const doorMetalnessTexture = await textureLoader.loadAsync(doorMetalnessTexturePath);
+const doorNormalTexture = await textureLoader.loadAsync(doorNormalTexturePath);
+const doorAlphaTexture = await textureLoader.loadAsync(doorAlphaTexturePath);
+const doorDisplacementTexture = await textureLoader.loadAsync(doorDisplacementTexturePath);
 
 /**
  * 3D Objects
@@ -146,8 +174,19 @@ houseGroup.add(roof);
 
 // Door
 const door = new THREE.Mesh(
-  new THREE.PlaneGeometry(2.2, 2.2),
-  new THREE.MeshStandardMaterial()
+  new THREE.PlaneGeometry(2.2, 2.2, 128, 128),
+  new THREE.MeshStandardMaterial({
+    transparent: true,
+    map: doorColorTexture,
+    alphaMap: doorAlphaTexture,
+    aoMap: doorAmbientOcclusion,
+    metalnessMap: doorMetalnessTexture,
+    roughnessMap: doorRoughnessTexture,
+    displacementMap: doorDisplacementTexture,
+    normalMap: doorNormalTexture,
+    displacementScale: 0.15,
+    displacementBias: -0.04,
+  })
 );
 
 door.position.y = door.geometry.parameters.height * 0.5;
@@ -158,6 +197,7 @@ houseGroup.add(door);
 // Bushes
 const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
 const bushMaterial = new THREE.MeshStandardMaterial({
+  color: '#ccffcc',
   map: bushColorTexture,
   aoMap: bushARMTexture,
   roughnessMap: bushARMTexture,
@@ -181,6 +221,7 @@ for (let i = 0; i < bushPositions.length; i++) {
   );
   bush.scale.setScalar(bushScales[i]);
   bush.position.set(...bushPositions[i]);
+  bush.rotation.x = -0.75;
 
   houseGroup.add(bush);
 }
@@ -190,7 +231,13 @@ const gravesGroup = new THREE.Group();
 scene.add(gravesGroup);
 
 const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
-const graveMaterial = new THREE.MeshStandardMaterial();
+const graveMaterial = new THREE.MeshStandardMaterial({
+  map: graveColorTexture,
+  aoMap: graveARMTexture,
+  roughnessMap: graveARMTexture,
+  metalnessMap: graveARMTexture,
+  normalMap: graveNormalTexture,
+});
 
 for (let i = 0; i < 30; i++) {
   const angle = Math.random() * Math.PI * 2;
