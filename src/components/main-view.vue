@@ -194,6 +194,16 @@ door.position.z = (walls.geometry.parameters.width * 0.5) + 0.01;
 
 houseGroup.add(door);
 
+// Door light
+const doorLight = new THREE.PointLight('#ff7d46', 5);
+doorLight.position.set(0, 2.2, 2.5);
+houseGroup.add(doorLight);
+
+// Ghosts
+const ghosts = ['#8800ff', '#ff0088', '#ff0000']
+  .map((color)=> new THREE.PointLight(color, 6));
+scene.add(...ghosts);
+
 // Bushes
 const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
 const bushMaterial = new THREE.MeshStandardMaterial({
@@ -261,14 +271,48 @@ for (let i = 0; i < 30; i++) {
  * Lights
  */
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight('#86cdff', 0.275);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+const directionalLight = new THREE.DirectionalLight('#86cdff', 1);
 directionalLight.position.set(3, 2, -8);
+directionalLight.shadow.mapSize.width = 256;
+directionalLight.shadow.mapSize.height = 256;
+directionalLight.shadow.camera.top = 8;
+directionalLight.shadow.camera.right = 8;
+directionalLight.shadow.camera.left = -8;
+directionalLight.shadow.camera.bottom = -8;
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 20;
+
 scene.add(directionalLight);
 scene.add(directionalLight.target);
 scene.add(new DirectionalLightHelper(directionalLight, 5));
+
+/**
+ * Shadows
+ */
+function setupShadows() {
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  directionalLight.castShadow = true;
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  roof.castShadow = true;
+  floor.receiveShadow = true;
+
+  for (const ghost of ghosts) {
+    ghost.castShadow = true;
+    ghost.shadow.mapSize.width = 256;
+    ghost.shadow.mapSize.height = 256;
+    ghost.shadow.camera.far = 10;
+  }
+
+  for (const grave of gravesGroup.children) {
+    grave.castShadow = true;
+  }
+}
 
 /**
  * Camera setup
@@ -291,7 +335,7 @@ onMounted(()=> {
       canvas: canvas.value,
     });
 
-    renderer.shadowMap.enabled = false;
+    setupShadows();
 
     new OrbitControls(camera, canvas.value);
 
@@ -321,9 +365,20 @@ onMounted(()=> {
   }
 });
 
+const timer = new THREE.Timer();
 function tick() {
-  renderer.render(scene, camera);
+  timer.update();
+  const elapsed = timer.getElapsed();
 
+  for (let i = 0; i < ghosts.length; i++) {
+    const ghost = ghosts[i];
+    const angle = ((i % 2 === 0 ? 1 : -1) * elapsed * [0.5, 0.38, 0.23][i]) % (2 * Math.PI);
+    ghost.position.x = Math.cos(angle) * (4 + i);
+    ghost.position.z = Math.sin(angle) * (4 + i);
+    ghost.position.y = Math.sin(angle) * Math.sin(angle * 2.34) * Math.sin(angle * 3.45);
+  }
+
+  renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }
 </script>
