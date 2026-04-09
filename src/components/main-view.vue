@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as THREE from 'three';
 import {onMounted, ref} from 'vue';
-import {CameraHelper, DirectionalLightHelper, WebGLRenderer} from 'three';
+import {WebGLRenderer} from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls';
 import GUI from 'lil-gui';
 import floorAlphaTexturePath from '~/assets/floor/alpha.jpg';
@@ -33,6 +33,8 @@ import doorMetalnessTexturePath from '~/assets/door/metalness.jpg';
 import doorNormalTexturePath from '~/assets/door/normal.jpg';
 import doorAlphaTexturePath from '~/assets/door/alpha.jpg';
 import doorDisplacementTexturePath from '~/assets/door/height.jpg';
+
+import {Sky} from 'three/addons/objects/Sky.js';
 
 const gui = new GUI();
 
@@ -110,8 +112,6 @@ const doorDisplacementTexture = await textureLoader.loadAsync(doorDisplacementTe
 /**
  * 3D Objects
  */
-
-scene.add(new THREE.AxesHelper(25));
 
 // House
 const houseGroup = new THREE.Group();
@@ -287,11 +287,11 @@ directionalLight.shadow.camera.far = 20;
 
 scene.add(directionalLight);
 scene.add(directionalLight.target);
-scene.add(new DirectionalLightHelper(directionalLight, 5));
 
 /**
  * Shadows
  */
+
 function setupShadows() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -313,6 +313,33 @@ function setupShadows() {
     grave.castShadow = true;
   }
 }
+
+/**
+ * Sky
+ */
+
+const sky = new Sky();
+scene.add(sky);
+
+sky.scale.setScalar(100);
+sky.material.uniforms.turbidity.value = 10;
+sky.material.uniforms.rayleigh.value = 0;
+sky.material.uniforms.mieCoefficient.value = 0.04;
+sky.material.uniforms.mieDirectionalG.value = 0.7;
+sky.material.uniforms.sunPosition.value.set(0.3, -0.038, -0.95);
+
+gui.add(sky.material.uniforms.turbidity, 'value').min(0).max(100).step(1).name('turbidity');
+gui.add(sky.material.uniforms.rayleigh, 'value').min(0).max(1).step(0.001).name('rayleigh');
+gui.add(sky.material.uniforms.mieCoefficient, 'value').min(0).max(1).step(0.001).name('mieCoefficient');
+gui.add(sky.material.uniforms.mieDirectionalG, 'value').min(0).max(1).step(0.001).name('mieDirectionalG');
+
+/**
+ * Fog
+ */
+
+scene.fog = new THREE.Fog('#02343f', 1, 50);
+gui.add(scene.fog, 'near').min(1).max(100).step(1);
+gui.add(scene.fog, 'far').min(1).max(100).step(1);
 
 /**
  * Camera setup
