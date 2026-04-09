@@ -20,7 +20,14 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "paths": {
+      "~/*": ["./*"],
+      "three/addons/*": [
+        "node_modules/@types/three/examples/jsm/*"
+      ]
+    }
   },
   "include": ["src"]
 }

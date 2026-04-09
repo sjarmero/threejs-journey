@@ -2,7 +2,7 @@
 import MainView from './components/main-view.vue';
 </script>
 <template>
-  <h1>ThreeJS</h1>
-
-  <main-view />
+  <Suspense>
+    <main-view />
+  </Suspense>
 </template>
