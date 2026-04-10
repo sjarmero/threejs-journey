@@ -24,10 +24,8 @@
 
     "paths": {
       "~/*": ["./*"],
-      "three/addons/*": [
-        "node_modules/@types/three/examples/jsm/*"
-      ]
-    }
+      "three/addons/*": ["./node_modules/@types/three/examples/jsm/*"],
+    },
   },
-  "include": ["src"]
+  "include": ["src"],
 }

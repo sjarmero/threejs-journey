@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import * as THREE from 'three';
-import {onMounted, ref} from 'vue';
-import {WebGLRenderer} from 'three';
-import {OrbitControls} from 'three/addons/controls/OrbitControls';
+import { onMounted, ref } from 'vue';
+import { WebGLRenderer } from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import GUI from 'lil-gui';
 
 const gui = new GUI();
@@ -23,7 +23,7 @@ scene.add(camera);
 const canvas = ref<HTMLCanvasElement | null>(null);
 let renderer: WebGLRenderer;
 
-onMounted(()=> {
+onMounted(() => {
   if (canvas.value) {
     renderer = new THREE.WebGLRenderer({
       canvas: canvas.value,
@@ -37,7 +37,7 @@ onMounted(()=> {
 
     tick();
 
-    window.addEventListener('resize', ()=> {
+    window.addEventListener('resize', () => {
       width = window.innerWidth;
       height = window.innerHeight;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -47,7 +47,7 @@ onMounted(()=> {
       renderer.render(scene, camera);
     });
 
-    canvas.value.addEventListener('dblclick', ()=> {
+    canvas.value.addEventListener('dblclick', () => {
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
